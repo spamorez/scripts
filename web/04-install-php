@@ -1,0 +1,40 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=/home/SRC/web/CONF
+PATCH_DIR=/home/SRC/web/PATCH
+
+####################################################
+echo "Распаковываем ssh"
+
+export FORCE_PKG_REGISTER=1
+
+PORT_PATH=/usr/ports/lang/php5
+cd $PORT_PATH
+
+cp $PATCH_DIR/* $PORT_PATH/files
+
+make BATCH=yes FORCE_PKG_INSTALL=yes FORCE_PKG_REGISTER=1 \
+ WITH_GD=yes  WITH_FREETYPE=yes WITH_PNG=yes WITH_ZLIB=yes \
+ WITH_APACHE=yes WITH_APXS=/usr/local/sbin/apxs WITH_JPEG=yes WITH_GETTEXT=yes \
+ WITH_ICONV=yes WITH_MYSQL=yes \
+install 
+
+
+if [ `grep "application/x-httpd-php" /usr/local/etc/apache22/mime.types | wc -l` -eq 0 ]
+then
+
+# .........
+echo 'application/x-httpd-php php
+application/x-httpd-php-source phps
+' >> /usr/local/etc/apache22/mime.types
+
+fi
+
+/usr/local/etc/rc.d/apache22 restart
+# make clean
+cd $pwd

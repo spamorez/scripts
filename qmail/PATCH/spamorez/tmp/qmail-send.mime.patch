@@ -1,0 +1,53 @@
+--- qmail-send.c	1998/07/02 03:24:53	1.1
++++ qmail-send.c	1998/07/02 04:05:58
+@@ -55,6 +55,7 @@
+ stralloc bouncehost = {0};
+ stralloc doublebounceto = {0};
+ stralloc doublebouncehost = {0};
++stralloc boundary = {0};
+ 
+ char strnum2[FMT_ULONG];
+ char strnum3[FMT_ULONG];
+@@ -702,9 +703,17 @@
+    qmail_puts(&qqt,"\nTo: ");
+    while (!quote2(&quoted,bouncerecip)) nomem();
+    qmail_put(&qqt,quoted.s,quoted.len);
+-   qmail_puts(&qqt,"\n\
+-Subject: failure notice\n\
+-\n\
++						/* MIME header with boundary */
++   qmail_puts(&qqt,"\nMIME-Version: 1.0\n"
++			"Content-Type: multipart/mixed; "
++			"boundary=\"");
++   if (!stralloc_copyb(&boundary,strnum2,fmt_ulong(strnum2,birth))) nomem();
++   if (!stralloc_cat(&boundary,&bouncehost)) nomem();
++   if (!stralloc_catb(&boundary,strnum2,fmt_ulong(strnum2,id))) nomem();
++   qmail_put(&qqt,boundary.s,boundary.len);
++   qmail_puts(&qqt,"\"\nSubject: failure notice\n\n--");
++   qmail_put(&qqt,boundary.s,boundary.len);	/* def type is text/plain */
++   qmail_puts(&qqt,"\n\n\
+ Hi. This is the qmail-send program at ");
+    qmail_put(&qqt,bouncehost.s,bouncehost.len);
+    qmail_puts(&qqt,*sender.s ? ".\n\
+@@ -729,7 +738,9 @@
+        qmail_fail(&qqt);
+     }
+ 
+-   qmail_puts(&qqt,*sender.s ? "--- Below this line is a copy of the message.\n\n" : "--- Below this line is the original bounce.\n\n");
++   qmail_puts(&qqt,*sender.s ? "--- Enclosed is a copy of the message.\n\n--" : "--- Enclosed is the original bounce.\n\n--");
++   qmail_put(&qqt,boundary.s,boundary.len);	/* enclosure boundary */
++   qmail_puts(&qqt,"\nContent-Type: message/rfc822\n\n");
+    qmail_puts(&qqt,"Return-Path: <");
+    while (!quote2(&quoted,sender.s)) nomem();
+    qmail_put(&qqt,quoted.s,quoted.len);
+@@ -747,6 +758,10 @@
+      if (r == -1)
+        qmail_fail(&qqt);
+     }
++
++   qmail_puts(&qqt,"\n--");			/* end boundary */
++   qmail_put(&qqt,boundary.s,boundary.len);
++   qmail_puts(&qqt,"--\n");
+ 
+    qmail_from(&qqt,bouncesender);
+    qmail_to(&qqt,bouncerecip);

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src/qmail
+CONF_DIR=/home/SRC/CONF
+PATCH_DIR=/home/SRC/PATCH/qmail
+
+echo "Install CourierIMAP"
+
+cd $WORK_DIR
+
+cp $SRC_DIR/courier-imap-4.0.0.tar.bz2 $WORK_DIR/
+bunzip2 courier-imap-4.0.0.tar.bz2
+tar xvf courier-imap-4.0.0.tar
+rm  courier-imap-4.0.0.tar
+
+cd $WORK_DIR/courier-imap-4.0.0
+
+COURIERAUTHCONFIG=/var/qmail/courier/bin/courierauthconfig \
+CPPFLAGS=-I/var/qmail/courier/include \
+./configure \
+  --prefix=/var/qmail/courier \
+  --disable-root-check \
+  --without-ssl
+
+gmake && gmake install && gmake install-configure
+
+cp courier-imap.sysvinit /usr/local/etc/rc.d/280-courier-imap.sh
+
+cd $pwd
+

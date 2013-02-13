@@ -1,0 +1,76 @@
+#!/bin/sh
+
+
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=/home/SRC/net/CONF
+PATCH_DIR=/home/SRC/net/PATCH
+
+####################################################
+echo "Распаковываем squid3"
+echo
+cd  $WORK_DIR
+tar xfz $SRC_DIR/squid-3.0.STABLE9.tar.gz
+
+echo "Done!"
+echo
+
+#echo "Applying standard ssh patch..."
+#patch < $PATCH_DIR/ssh-3.2.9.1.patch
+
+cd $WORK_DIR/squid-3.0.STABLE9
+
+./configure --prefix=/data/squid \
+--enable-snmp \
+--enable-htcp \
+--enable-kill-parent-hack \
+--enable-ssl \
+--enable-delay-pools \
+--enable-default-err-language="Russian-1251" \
+--enable-ipf-transparent \
+--enable-auth="ntlm,basic" \
+--enable-external-acl-helpers="wbinfo_group"
+
+make && make install
+
+echo "127.0.0.1" > /data/squid/etc/IPUsers
+
+rm /data/squid/etc/squid.conf.new
+echo visible_hostname `hostname` >> /data/squid/etc/squid.conf.new
+cat /data/squid/etc/squid.conf.new /data/squid/etc/squid.conf.default > /data/squid/etc/squid.conf  
+
+mkdir /data/squid/var/cache
+chown nobody /data/squid/var/cache
+
+chown nobody /data/squid/var/logs
+
+/data/squid/sbin/squid -z
+
+echo '
+#!/bin/sh
+case "$1" in
+'start')
+        /data/squid/sbin/squid -D && echo "Squid Start - OK"
+        ;;
+'stop')
+        /data/squid/sbin/squid -k kill
+        ;;
+'reload')
+        /data/squid/sbin/squid -k reconfigure
+        ;;
+*)
+        echo "Usage: $0 { start | stop | reload }"
+        ;;
+esac
+exit 0
+' > /usr/local/etc/rc.d/050-squid.sh
+
+chmod +x /usr/local/etc/rc.d/050-squid.sh
+
+/usr/local/etc/rc.d/050-squid.sh start
+
+cd $pwd

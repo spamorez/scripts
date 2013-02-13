@@ -1,0 +1,38 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=/home/SRC/net/CONF
+PATCH_DIR=/home/SRC/net/PATCH
+
+####################################################
+echo "Распаковываем ssh"
+echo
+cd  $WORK_DIR
+tar zxvf $SRC_DIR/ssh-3.2.9.1.tar.gz
+echo "Done!"
+echo
+
+echo "Applying standard ssh patch..."
+patch < $PATCH_DIR/ssh-3.2.9.1.patch
+
+
+cd $WORK_DIR/ssh-3.2.9.1
+
+./configure --prefix=/usr \
+--without-x11-security \
+--without-x
+
+make && make install
+
+# Автостарт 
+echo '\
+### SSH
+sshd_enable="YES"
+sshd_flags="-p 2202"
+' >> /etc/rc.conf
+
+cd $pwd

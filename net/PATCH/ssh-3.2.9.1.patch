@@ -1,0 +1,50 @@
+#
+# LIS v.1.0.2
+# Hide Version SSH and tcsetattr
+#
+
+--- ssh-3.2.9.1/apps/ssh/ssh2includes.h
++++ ssh-3.2.9.1/apps/ssh/ssh2includes.h
+148,149c148,149
+< #define SSH2_VERSION_STRING "SSH Secure Shell " SSH2_VERSION \
+<                             " (non-commercial version)"
+---
+> #define SSH2_VERSION_STRING "" SSH2_VERSION \
+>                             ""
+151c151
+<                                      " SSH Secure Shell (non-commercial)"
+---
+>                                      ""
+
+--- ssh-3.2.9.1/apps/ssh/ssh2version.h
++++ ssh-3.2.9.1/apps/ssh/ssh2version.h
+1c1
+< #define SSH2_VERSION "3.2.9.1"
+---
+> #define SSH2_VERSION "NO"
+
+--- ssh-3.2.9.1/lib/sshreadline/sshreadline.c
++++ ssh-3.2.9.1/lib/sshreadline/sshreadline.c
+@@ -500,8 +500,9 @@
+   new_term.c_lflag &= ~(ECHO | ICANON);
+   new_term.c_cc[VMIN] = 1;
+   new_term.c_cc[VTIME] = 1;
+-  if (tcsetattr(fd, TCSAFLUSH, &new_term) < 0)
++   fast:  if (tcsetattr(fd, TCSAFLUSH, &new_term) < 0)
+     {
++       if (EINTR == errno) goto fast;
+       ssh_warning("tcsetattr failed in ssh_rl_set_tty_modes_for_fd: "
+                   "fd %d: %.200s", fd, strerror(errno));
+       return -1;
+@@ -561,8 +562,9 @@
+ {
+   fcntl(fd, F_SETFL, fcntl_flags);
+
+-  if (tcsetattr(fd, TCSAFLUSH, saved_tio) < 0)
++   fast1:   if (tcsetattr(fd, TCSAFLUSH, saved_tio) < 0)
+     {
++        if (EINTR == errno) goto fast1;
+       ssh_warning("tcsetattr failed in ssh_rl_restore_tty_modes_for_fd: "
+                   "fd %d: %.200s", fd, strerror(errno));
+       return -1;
+

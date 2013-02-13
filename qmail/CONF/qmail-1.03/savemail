@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+#system "set > /tmp/set-$$";
+
+my $SavePath="/var/qmail/backup_mail";
+# Имя файла для хранения полученного сообщения
+my @DateFields=localtime;
+my $Month = ($DateFields[5]+1900) . "-" . ($DateFields[4]+1);
+my $Day=  $DateFields[3];
+
+mkdir "$SavePath/$Month", 0770;
+
+my $MessPath="$SavePath/$Month/$Day";
+# Создание каталога Mess/YYYY-MM-DD/
+mkdir $MessPath, 0770;
+
+
+# Создание файла для хранения сообщения
+my $Path="$MessPath/m-". time . "-" . $$ . ".eml";
+#my $Path1="$MessPath/m-". time . "-" . $$ . ".set";
+#system "set > $Path1";
+#system "echo SENDER::: " . $ENV{'SENDER'} . " >> $Path1";
+
+
+#if( $ENV{'SENDER'} ne 'root@localhost')
+#{
+    open ( MESS , ">$Path")  or die "echo Cant't create file $Path : $!";
+    while( <> )
+    {
+	print MESS $_ ;
+    }
+    close(MESS);
+#}
+
+exit 0;

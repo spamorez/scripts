@@ -1,0 +1,100 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles/qmail
+WORK_DIR=/usr/src/qmail
+CONF_DIR=/home/SRC/qmail/CONF
+PATCH_DIR=/home/SRC/qmail/PATCH
+
+echo "Install UNZIP"
+sleep 2
+cd /usr/ports/archivers/unzip
+make && make install && make clean
+echo "Done!"
+sleep 2
+
+echo "Install PCRE"
+sleep 2
+cd /usr/ports/devel/pcre
+make && make install && make clean
+echo "Done!"
+sleep 2
+
+echo "Install Mail Drop"
+sleep 2
+cd /usr/ports/mail/maildrop
+make MAILDROP_SUID=root MAILDROP_SGID=vchkpw && make install && make clean
+echo "Done!"
+sleep 2
+
+echo "Install DCC"
+cd /usr/ports/mail/dcc-dccd
+make && make install && make clean
+cp $CONF_DIR/SpamAssassin/map.txt /usr/local/dcc/
+rm /usr/local/dcc/map
+cdcc "load map.txt"
+chown dcc /usr/local/dcc/map
+chown dcc /usr/local/dcc/map.txt
+sleep 2
+
+echo "Install SpamAssassin"
+echo "Select all options, but not mysql É postgresql"
+echo
+echo "Press ENTER to proceeed"
+read
+cd /usr/ports/mail/p5-Mail-SpamAssassin
+make && make install && make clean
+echo "Done"
+
+
+echo "Configure SpamAssassin"
+sleep 2
+mkdir /usr/local/etc/rc.d/install
+mv /usr/local/etc/rc.d/sa-spamd /usr/local/etc/rc.d/install/
+#mv /usr/local/etc/rc.d/sa-spamd /usr/local/etc/rc.d/220-sa-spamd.sh
+#cp $CONF_DIR/SpamAssassin/293.sa-spamd.sh /usr/local/etc/rc.d/
+cp $CONF_DIR/SpamAssassin/local.cf /usr/local/etc/mail/spamassassin/local.cf
+cp $CONF_DIR/SpamAssassin/v310.pre /usr/local/etc/mail/spamassassin/v310.pre
+cp $CONF_DIR/SpamAssassin/220-sa-spamd.sh /usr/local/etc/rc.d/220-sa-spamd.sh
+echo "" >> /etc/rc.conf
+echo "### SpamAssassin" >> /etc/rc.conf
+echo "spamd_enable=\"YES\"" >> /etc/rc.conf
+echo "" >> /etc/rc.conf
+mkdir /var/log/qmail/spamd/
+touch /var/log/qmail/spamd/spamd.log
+echo "" >> /etc/syslog.conf
+echo "#### SPAMd" >> /etc/syslog.conf
+echo "!spamd" 
+echo "*.*                                             /var/log/qmail/spamd/spamd.log" >> /etc/syslog.conf
+/etc/rc.d/syslogd restart
+#ln -s /usr/local/share/spamassassin/tools /data/qmail/bin/tools
+/usr/local/etc/rc.d/220.sa-spamd.sh start
+echo "Done!"
+
+echo "Install ClamAV"
+echo "Select options curl and libunrar"
+echo
+echo "Press ENTER to proceeed"
+read
+cd /usr/ports/security/clamav
+make && make install && make clean
+cp $CONF_DIR/ClamAV/clamd.conf /usr/local/etc/
+cp $CONF_DIR/ClamAV/freshclam.conf /usr/local/etc/
+echo "" >> /etc/rc.conf
+echo "#### ClamAV" >> /etc/rc.conf
+echo "clamav_clamd_enable=\"YES\"" >> /etc/rc.conf
+echo "clamav_freshclam_enable=\"YES\"" >> /etc/rc.conf
+mv /usr/local/etc/rc.d/clamav-clamd /usr/local/etc/rc.d/240-clamav-clamd.sh
+mv /usr/local/etc/rc.d/clamav-freshclam /usr/local/etc/rc.d/250-clamav-freshclam.sh
+mv /usr/local/etc/rc.d/clamav-milter /usr/local/etc/rc.d/260-clamav-milter.sh
+chown vpopmail:vchkpw /var/log/clamav
+chown vpopmail:vchkpw /var/db/clamav
+chown vpopmail:vchkpw /var/run/clamav
+freshclam
+/usr/local/etc/rc.d/240-clamav-clamd.sh start
+/usr/local/etc/rc.d/250-clamav-freshclam.sh start
+/usr/local/etc/rc.d/260-clamav-milter.sh start
+
+cd $pwd
