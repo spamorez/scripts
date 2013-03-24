@@ -1,0 +1,8 @@
+--- extra.h
++++ extra.h
+4,5c4,5
+< #define QUEUE_EXTRA ""
+< #define QUEUE_EXTRALEN 0
+---
+> #define QUEUE_EXTRA "Tlog\0"
+> #define QUEUE_EXTRALEN 5

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src/qmail/qmail-1.03
+CONF_DIR=/home/SRC/CONF/qmail
+PATCH_DIR=/home/SRC/PATCH/qmail
+
+echo "Install CourierIMAP authlib"
+
+# ftp http://www.fehcom.de/qmail/spamcontrol/spamcontrol-2418_tgz
+mkdir -p $WORK_DIR
+cd $WORK_DIR
+
+cp $SRC_DIR/spamcontrol-2418.tgz $WORK_DIR/
+tar xvf spamcontrol-2418.tgz
+
+#echo /var/qmail > $WORK_DIR/conf-qmail
+# ln -s $WORK_DIR/find-systype find-systype.sh
+#make 
+
+cp $CONF_DIR/qmail-bad* $WORK_DIR
+
+cd $pwd
+

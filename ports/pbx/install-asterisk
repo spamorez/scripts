@@ -1,0 +1,109 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src/pbx
+CONF_DIR=/home/SRC/pbx/CONF
+PATCH_DIR=/home/SRC/pbx/PATCH
+
+mkdir -p $WORK_DIR
+
+echo "Asterisk"
+cd $WORK_DIR
+
+#tar zxvf $SRC_DIR/asterisk-1.6.1.10.tar.gz
+#echo "Configure Asterisk"
+#cd $WORK_DIR/asterisk-1.6.1.10
+
+#./configure --prefix="/data/pbx" 
+#sleep 50
+
+#gmake all && gmake samples && gmake install 
+
+#echo '#! /bin/sh
+#
+#case x$1 in
+#    xstart)
+#	  /data/pbx/sbin/asterisk
+#	;;
+#
+#     xstop)
+#          killall -9 asterisk
+#	;;
+#     *)      echo >&2 "Usage: $0 {start|stop}"
+# esac' > /usr/local/etc/rc.d/500-asterisk.sh
+# 
+#chmod +x /usr/local/etc/rc.d/500-asterisk.sh
+#/usr/local/etc/rc.d/500-asterisk.sh start
+
+echo "Asterisk addons"
+cd $WORK_DIR
+
+tar zxvf $SRC_DIR/asterisk-addons-1.6.1.0.tar.gz
+echo "Configure Asterisk addons"
+
+#ln -s /data/mysql/include/mysql /usr/include/mysql
+ln -s /data/mysql/bin/mysql_config /usr/local/bin/mysql_config
+
+cd $WORK_DIR/asterisk-addons-1.6.1.0
+
+./configure --prefix=/data/pbx --with-asterisk=/data/pbx --with-mysqlclient=/data/mysql 
+
+#sleep 50
+
+gmake clean && gmake all && gmake install 
+
+#echo "Asterisk FreePBX"
+#cd $WORK_DIR
+#
+#if [ -f /etc/asterisk ] 
+#then
+#echo "Exist"
+#else
+#ln -s /data/pbx/etc/asterisk /etc/asterisk
+#fi
+
+#if [ -f /var/lib/asterisk ] 
+#then
+#echo "Exist"
+#else
+#ln -s /data/pbx/lib/asterisk /var/lib/asterisk
+#fi
+
+
+
+#tar zxvf $SRC_DIR/freepbx-2.6.0RC2.tar.gz
+#echo "Configure Asterisk freepbx"
+
+#cd $WORK_DIR/freepbx-2.6.0RC2
+
+#echo 'create database asterisk;' | mysql
+#mysql asterisk < SQL/newinstall.sql
+#echo "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109';" | mysql 
+
+#echo 'create database asteriskcdrdb;' | mysql
+#mysql asteriskcdrdb < SQL/cdr_mysql_table.sql
+#echo "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asterisk@localhost IDENTIFIED BY 'amp109';" | mysql 
+
+
+#PATH=$PATH:/data/pbx/sbin
+#export PATH
+
+#pw group add asterisk
+#pw user add asterisk -c "asterisk PBX" -d /data/pbx/lib/asterisk -g asterisk 
+
+
+#mkdir -p /var/lib/asterisk/bin
+#chmod +x /var/lib/asterisk/bin/*
+
+#ln -s /usr/local/bin/php /usr/bin/php
+
+#chmod +r /etc/amportal.conf
+
+#sleep 2
+
+#php install_amp --dbhost localhost --dbname asterisk --username asteriskuser --password 'amp109' --webroot '/data/httpd/htdocs' --cgibin '/data/httpd/cgi-bin'
+
+cd $pwd

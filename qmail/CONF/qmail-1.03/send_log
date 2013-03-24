@@ -1,4 +1,0 @@
-#!/bin/sh
-PATH=/var/qmail/bin:/usr/local/bin:/usr/bin:/bin
-export PATH
-exec  tai64n | tai64nlocal | setuidgid qmaill multilog s10000000 n20 /var/log/qmail/qmail-send 2>&1
