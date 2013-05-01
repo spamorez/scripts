@@ -1,0 +1,35 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=/home/SRC/web/CONF
+PATCH_DIR=/home/SRC/web/PATCH
+
+#MODULES="mod_log_mysql "
+MODULES="mod_cband"
+
+
+####################################################
+echo "Распаковываем ssh"
+
+for MOD in $MODULES; do
+
+PORT_PATH=/usr/ports/www/${MOD}
+
+echo install ${PORT_PATH}
+cd $PORT_PATH
+
+cp $PATCH_DIR/${MOD}/patch* $PORT_PATH/files
+
+make BATCH=yes FORCE_PKG_REGISTER=1 FORCE_PKG_INSTALL=yes \
+install 
+
+make clean
+
+done
+
+
+cd $pwd

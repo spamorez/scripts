@@ -1,0 +1,31 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=CONF
+PATCH_DIR=PATCH
+
+PORTS="misc/mc"
+
+####################################################
+for PORT in $PORTS; do
+
+PORT_PATH=/usr/ports/${PORT}
+
+echo install ${PORT_PATH}
+cd $PORT_PATH
+
+cp $PATCH_DIR/${PORT}/patch* $PORT_PATH/files
+
+make BATCH=yes FORCE_PKG_REGISTER=1 FORCE_PKG_INSTALL=yes \
+install 
+
+make clean
+
+done
+
+
+cd $pwd
