@@ -10,13 +10,13 @@ dev0=`cat /etc/fstab.orig | awk  '$2 == "/"  {print $1}'  | awk '{i=split($0, Na
 echo $dev0
 
 echo "make mirror"
-#gmirror label -v -b round-robin gm0 /dev/$dev0
+gmirror label -v -b round-robin gm0 /dev/$dev0
 
 echo "Start gmirror on boot"
 echo geom_mirror_load="YES" >> /boot/loader.conf
 
 echo "modify fstab"
-sed "s/\/dev\/$dev0/\/dev\/mirror\/gm0/" < /etc/fstab.orig  > /etc/fstab1
+sed "s/\/dev\/$dev0/\/dev\/mirror\/gm0/" < /etc/fstab.orig  > /etc/fstab
 
 echo "
 ********************************

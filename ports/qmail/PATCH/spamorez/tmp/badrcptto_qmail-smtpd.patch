@@ -1,0 +1,37 @@
+--- qmail-smtpd.c
++++ qmail-smtpd.c
+25a26
+> #include "strerr.h"
+68a70
+> void err_brt() { out("553 sorry, this recipient is in my badrecipientto list (#5.7.1)\r\n"); }
+123a126,128
+> int brtok = 0;
+> stralloc brt = {0};
+> struct constmap mapbrt;
+144c149,154
+<  
+---
+>     
+>       brtok = control_readfile(&brt,"control/badrcptto",0);
+>       if (brtok == -1) die_control();
+>       if (brtok)
+>         if (!constmap_init(&mapbrt,brt.s,brt.len,0)) die_nomem();
+> 
+235a246,256
+> int brtcheck()
+> {
+>   int j;
+>   if (!brtok) return 0;
+>   if (constmap(&mapbrt,addr.s,addr.len - 1)) return 1;
+>   j = byte_rchr(addr.s,addr.len,'@');
+>   if (j < addr.len)
+>     if (constmap(&mapbrt,addr.s + j,addr.len - j - 1)) return 1;
+>   return 0;
+> }
+> 
+296a318,322
+>       if (!env_get("RELAYCLIENT") && brtcheck()) {
+>         strerr_warn4("qmail-smtpd: badrcptto: ",addr.s," at ",remoteip,0);
+>         err_brt();
+>         return;
+>       }

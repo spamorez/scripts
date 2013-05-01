@@ -1,0 +1,10 @@
+--- Makefile
++++ Makefile
+1542c1542
+< open.a sig.a case.a env.a stralloc.a alloc.a substdio.a error.a str.a \
+---
+> open.a sig.a case.a env.a stralloc.a alloc.a strerr.a substdio.a error.a str.a \
+1548c1548
+< 	alloc.a substdio.a error.a str.a fs.a auto_qmail.o base64.o  `cat \
+---
+> 	alloc.a strerr.a substdio.a error.a str.a fs.a auto_qmail.o base64.o  `cat \

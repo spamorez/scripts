@@ -1,0 +1,38 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src
+CONF_DIR=/home/SRC/web/CONF
+PATCH_DIR=/home/SRC/web/PATCH
+
+<<<<<<< HEAD:web/05-install-php-modules
+PORTS="lang/php53-extensions"
+=======
+#PORTS="lang/php5-extensions databases/php5-mysql www/suphp ftp/php5-curl"
+PORTS="ftp/php5-curl"
+>>>>>>> f5601f179b34845f5b0dcafee92dfd30de86cec8:ports/web/05-install-php-modules
+
+export FORCE_PKG_REGISTER=1
+
+####################################################
+for PORT in $PORTS; do
+
+PORT_PATH=/usr/ports/${PORT}
+
+echo install ${PORT_PATH}
+cd $PORT_PATH
+
+cp $PATCH_DIR/${PORT}/patch* $PORT_PATH/files
+
+#make BATCH=yes FORCE_PKG_INSTALL=yes \
+make FORCE_PKG_INSTALL=yes \
+install clean
+
+done
+
+/usr/local/etc/rc.d/apache22 restart
+
+cd $pwd

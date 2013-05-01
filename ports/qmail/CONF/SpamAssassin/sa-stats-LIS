@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# LIS v.1.0.1
+#
+_OUTDIR="/data/STATS/SPAM-STATS"
+_LOGDIR="/var/log/qmail/spamd"
+_LOGFILE="spamd.log"
+_LOG="$_LOGDIR/$_LOGFILE"
+_MAIL="root"
+_YESTERDAY=`date -v-1d +%Y-%m-%d`
+_y=`date +%Y`
+_m=`date +%m`
+_d=`date -v-1d +%d`
+_LAST_M=`date -v-1m +%m`
+_CURENTDAY=`date +%d`
+_STATSDAY="$_OUTDIR/$_y/$_m/$_d"
+
+
+##### Ежедневная статистика ####################
+if [ $_CURENTDAY = 01 ]; then
+    if [ ! -d $_OUTDIR/$_y/$_LAST_M/$_d ]; then
+        mkdir -p $_OUTDIR/$_y/$_LAST_M/$_d
+    fi
+    ## Stats to HTML
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s $_YESTERDAY -H > $_OUTDIR/$_y/$_LAST_M/$_d/index.html
+    ## Stats to EMAIL
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s $_YESTERDAY --mail $_MAIL
+
+else
+    if [ ! -d $_STATSDAY ]; then
+        mkdir -p $_STATSDAY
+    fi
+    ## Stats to HTML
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s $_YESTERDAY -H > $_STATSDAY/index.html
+    ## Stats to EMAIL
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s $_YESTERDAY --mail $_MAIL
+fi
+
+###### Ежемесячная статистика ###################
+if [ $_CURENTDAY = 01 ]; then
+    ## Stats to HTML
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s `date -v-1m +%Y-%m-%d` -e $_YESTERDAY -H > $_OUTDIR/`date -v-1m +%Y/%m`/month_spam.html
+    ## Stats to EMAIL
+    /data/qmail/bin/tools/sa-stats.pl -l $_LOG -s `date -v-1m +%Y-%m-%d` -e $_YESTERDAY --mail $_MAIL
+    ### Rotate log
+    cd $_LOGDIR
+    tar cvfz $_LOGFILE-`date -v-1m +%Y-%m`.tar.gz $_LOGFILE
+    > $_LOGFILE
+fi

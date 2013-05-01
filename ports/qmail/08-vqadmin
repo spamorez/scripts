@@ -1,0 +1,88 @@
+#!/bin/bash
+
+pwd=`pwd`
+hostname=`hostname`
+
+SRC_DIR=/home/SRC/distfiles
+WORK_DIR=/usr/src/qmail
+CONF_DIR=/home/SRC/CONF
+PATCH_DIR=/home/SRC/PATCH/qmail
+
+cd $WORK_DIR
+
+tar xvf $SRC_DIR/vqadmin-2.3.2.tar.gz
+
+cd $WORK_DIR/vqadmin-2.3.2
+
+./configure --enable-cgibindir=/data/apache/cgi-bin
+
+make all && make install-strip
+
+/data/apache/bin/htpasswd -b -c /data/apache/conf/htpasswd admin 12345
+
+echo "Admin: admin" >> /data/apache/conf/htgroup
+
+mv /data/apache/cgi-bin/vqadmin/.htaccess /data/apache/cgi-bin/vqadmin/.htaccess.orig
+
+cat /data/apache/cgi-bin/vqadmin/.htaccess.orig | \
+grep -v "AuthUserFile" |\
+grep -v "AuthName" \
+> /data/apache/cgi-bin/vqadmin/.htaccess
+
+echo '
+AuthUserFile /data/apache/conf/htpasswd
+AuthGroupFile  /data/apache/conf/htgroup
+AuthName Admin
+' >> /data/apache/cgi-bin/vqadmin/.htaccess
+
+echo '
+<Directory "/data/apache/cgi-bin/vqadmin">
+     deny from all
+     Options ExecCGI
+     AllowOverride AuthConfig
+     Order deny,allow
+</Directory>
+'>> /data/apache/conf/httpd.conf
+
+/data/apache/bin/apachectl restart
+
+echo "vqadmin installed" 
+sleep 2
+
+cd $WORK_DIR
+
+tar xvzf $SRC_DIR/qmailadmin-1.2.11.tar.gz
+
+cd $WORK_DIR/qmailadmin-1.2.11
+
+./configure --enable-htmldir=/data/apache/htdocs \
+	    --enable-imagedir=/data/apache/htdocs/images \
+	    --enable-imageurl=/images --enable-cgibindir=/data/apache/cgi-bin \
+	    --enable-autoresponder-path=/usr/local/bin --enable-vpopuser=vpopmail \
+	    --enable-ezmlmdir=/usr/local/bin/ezmlm/ --enable-ezmlmidx=y \
+	    --enable-modify-quota --disable-ipauth --enable-help
+
+make all && make install-strip
+
+echo "qmailadmin installed" 
+sleep 2
+
+cd $WORK_DIR
+
+tar xvzf $SRC_DIR/squirrelmail-1.4.16.tar.gz
+
+cd $WORK_DIR/squirrelmail-1.4.16
+
+./configure
+
+make all && make install-strip
+
+echo "squrrelmail installed" 
+sleep 2
+
+cd $pwd
+
+
+
+
+
