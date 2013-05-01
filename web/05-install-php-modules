@@ -8,8 +8,7 @@ WORK_DIR=/usr/src
 CONF_DIR=/home/SRC/web/CONF
 PATCH_DIR=/home/SRC/web/PATCH
 
-PORTS="lang/php5-extensions databases/php5-mysql www/suphp databases/php5-pgsql ftp/php5-curl"
-#PORTS="lang/php5-extensions www/suphp"
+PORTS="lang/php53-extensions"
 
 export FORCE_PKG_REGISTER=1
 

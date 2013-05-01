@@ -13,16 +13,18 @@ echo "Распаковываем ssh"
 
 export FORCE_PKG_REGISTER=1
 
-PORT_PATH=/usr/ports/lang/php5
+PORT_PATH=/usr/ports/lang/php53
 cd $PORT_PATH
 
 cp $PATCH_DIR/* $PORT_PATH/files
 
-make BATCH=yes FORCE_PKG_INSTALL=yes FORCE_PKG_REGISTER=1 \
- WITH_GD=yes  WITH_FREETYPE=yes WITH_PNG=yes WITH_ZLIB=yes \
- WITH_APACHE=yes WITH_APXS=/usr/local/sbin/apxs WITH_JPEG=yes WITH_GETTEXT=yes \
- WITH_ICONV=yes WITH_MYSQL=yes \
-install 
+#make BATCH=yes FORCE_PKG_INSTALL=yes FORCE_PKG_REGISTER=1 \
+# WITH_GD=yes  WITH_FREETYPE=yes WITH_PNG=yes WITH_ZLIB=yes WITH_FPM=yes \
+# WITH_APACHE=yes WITH_APXS=/usr/local/sbin/apxs WITH_JPEG=yes WITH_GETTEXT=yes \
+# WITH_ICONV=yes WITH_MYSQL=yes \
+
+make FORCE_PKG_INSTALL=yes FORCE_PKG_REGISTER=1 \
+install clean
 
 
 if [ `grep "application/x-httpd-php" /usr/local/etc/apache22/mime.types | wc -l` -eq 0 ]

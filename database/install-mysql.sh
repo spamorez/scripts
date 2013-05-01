@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 pwd=`pwd`
 hostname=`hostname`
 SRC_DIR=/home/SRC/distfiles
@@ -8,15 +8,15 @@ PATCH_DIR=/home/SRC/databases/PATCH
 ####################################################
 echo ""
 
-#PORT_PATH=/usr/ports/databases/mysql55-server
-#cd $PORT_PATH
+PORT_PATH=/usr/ports/databases/mysql55-server
+cd $PORT_PATH
 
 #make extract
 #cp $PATCH_DIR/* $PORT_PATH/files
 
 make BATCH=yes FORCE_PKG_INSTALL=yes \
     WITH_CHARSET=utf8 WITH_COLLATION=utf8_bin \
-install
+install clean
 
 mkdir /data/mysql
 mkdir /var/run/mysql

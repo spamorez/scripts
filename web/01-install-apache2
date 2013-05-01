@@ -8,10 +8,10 @@ WORK_DIR=/usr/src
 CONF_DIR=/home/SRC/web/CONF
 PATCH_DIR=/home/SRC/web/PATCH
 
-/usr/local/etc/rc.d/apache22 start
+#/usr/local/etc/rc.d/apache22 stop
 
 ####################################################
-echo "Распаковываем ssh"
+echo "Распаковываем apache"
 
 PORT_PATH=/usr/ports/www/apache22
 cd $PORT_PATH

@@ -9,7 +9,7 @@ CONF_DIR=/home/SRC/web/CONF
 PATCH_DIR=/home/SRC/web/PATCH
 
 #PORTS="textproc/libxml2 graphics/jpeg graphics/png print/freetype print/freetype2"
-PORTS="textproc/libxml2 graphics/jpeg graphics/png print/freetype print/freetype2 databases/postgresql91-contrib databases/memcached"
+PORTS="textproc/libxml2 graphics/jpeg graphics/png print/freetype print/freetype2 databases/memcached"
 
 ####################################################
 for PORT in $PORTS; do
